@@ -1,35 +1,21 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-
-  "//": [
-    "Only needed if you host the frontend on Vercel and the .NET API somewhere else. If you deploy the",
-    "Dockerfile instead, the API serves the SPA itself and this file is dead weight — delete it.",
-    "",
-    "This sits at the repo root deliberately. The root has no package.json, so Vercel's own install step",
-    "is stubbed out and the build reaches into frontend/ itself. That means Root Directory, Framework",
-    "and Output Directory need no setting in the dashboard: the repo describes its own build.",
-    "",
-    "BEFORE DEPLOYING: replace YOUR-API-HOST below with the host running the .NET API. All four rewrites",
-    "matter and the order is load-bearing — Vercel takes the first match, so the catch-all has to be",
-    "last or it would swallow the API calls too."
-  ],
-
   "installCommand": "echo 'nothing to install at the root'",
   "buildCommand": "cd frontend && npm ci && npm run build",
   "outputDirectory": "frontend/dist/instagraph-ui/browser",
   "framework": null,
-
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://YOUR-API-HOST/api/:path*" },
-    { "source": "/uploads/:path*", "destination": "https://YOUR-API-HOST/uploads/:path*" },
-    { "source": "/hubs/:path*", "destination": "https://YOUR-API-HOST/hubs/:path*" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/((?!api/|hubs/|uploads/).*)",
+      "destination": "/index.html"
+    }
   ],
-
   "headers": [
     {
       "source": "/index.html",
-      "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
     }
   ]
 }

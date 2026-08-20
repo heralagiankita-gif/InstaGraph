@@ -237,23 +237,39 @@ configuration is needed.
 
 ### Frontend on Vercel, API elsewhere
 
-Optional, and only worth it for the CDN — the Railway deployment above already serves the frontend on
-its own. `vercel.json` at the repo root declares the build, the output directory and the SPA rewrite,
-so nothing needs setting in the dashboard, with two exceptions:
+`vercel.json` at the repo root declares the build, the output directory and the SPA rewrite, so
+nothing needs setting in the dashboard. Push to `main` and Vercel rebuilds.
 
-- **Replace `YOUR-API-HOST`** in all three proxy rewrites with the Railway domain. Until that is a real
-  host, the page loads and every API call fails — which looks like a broken app rather than a
-  placeholder left in a config file.
-- **Deployment Protection is on by default.** Every request 302s to `vercel.com/sso-api` and only your
-  own logged-in browser gets through, so the site appears fine to you and unreachable to everyone else.
-  Turn it off at *Project → Settings → Deployment Protection → Vercel Authentication → Disabled*.
+**What Vercel can and cannot host.** It serves the Angular bundle. It does not run the API: Vercel
+executes static assets and Node/Python/Go/Ruby serverless functions, and this backend is ASP.NET Core
+on SQL Server with a SignalR hub that needs a connection held open. So a Vercel-only deployment gets
+you the interface — it loads, it routes, sign-up and login screens render — and every request that
+needs data fails, because there is nothing on the other end. The API has to live somewhere that runs
+.NET before the app does anything.
 
-CORS needs nothing: the rewrites are server-side, so the browser only ever sees its own origin. If you
-later call the API directly rather than through the proxy, add the origin with
-`Cors__AllowedOrigins__0=https://your-app.vercel.app`.
+**Deployment Protection is on by default** and is not a code setting. Every request 302s to
+`vercel.com/sso-api`, so the site works in your own logged-in browser and is invisible to everyone
+else — which reads exactly like a broken deploy. Turn it off at *Project → Settings → Deployment
+Protection → Vercel Authentication → Disabled*.
 
-The trade-off: SignalR is proxied, so it will likely settle for server-sent events rather than a
-WebSocket. Messaging and notifications still work; they just reconnect more.
+**When the API does have a host**, add these three rewrites to `vercel.json` **above** the catch-all —
+order matters, first match wins:
+
+```json
+{ "source": "/api/:path*",     "destination": "https://API-HOST/api/:path*" },
+{ "source": "/uploads/:path*", "destination": "https://API-HOST/uploads/:path*" },
+{ "source": "/hubs/:path*",    "destination": "https://API-HOST/hubs/:path*" }
+```
+
+No rebuild of the bundle is needed. `environment.prod.ts` already calls those three prefixes on its own
+origin rather than a hostname compiled in, which is the whole point of that file. CORS needs nothing
+either, since the rewrites are server-side and the browser only ever sees one origin.
+
+Until then the catch-all's negative lookahead keeps `/api`, `/hubs` and `/uploads` out of the SPA
+fallback, so they 404 rather than returning a page of HTML to code that is parsing JSON.
+
+The standing trade-off once it is wired: SignalR through a proxy usually settles for server-sent
+events rather than a WebSocket. Messaging and notifications still work; they just reconnect more.
 
 ### Why the API still needs a config file
 
