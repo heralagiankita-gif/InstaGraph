@@ -50,8 +50,13 @@ COPY --from=backend /app ./
 # without one, every restart loses the images while their rows stay in the database.
 RUN mkdir -p /app/wwwroot/uploads
 
-# Most container hosts (Railway, Render, Fly, Azure Container Apps) inject the port to listen on.
-ENV ASPNETCORE_HTTP_PORTS=8080
 EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "InstaGraph.Api.dll"]
+# Railway, Render and Fly inject the port to listen on as $PORT, and it is not the same number every
+# deploy. ASP.NET does not read that variable, so binding it has to happen here — a container that
+# listens on a fixed 8080 while the platform routes to something else fails its health check and the
+# deploy is marked failed with the app running perfectly inside.
+#
+# Shell form on purpose: $PORT has to expand at container start, not at image build. 0.0.0.0 rather
+# than localhost, or the process is unreachable from outside its own container.
+ENTRYPOINT ["sh", "-c", "dotnet InstaGraph.Api.dll --urls http://0.0.0.0:${PORT:-8080}"]

@@ -184,6 +184,8 @@ makes both deployments below work without a rebuild when the backend moves.
 there is only ever one origin. No CORS, and SignalR gets a real WebSocket instead of falling back to
 long polling through a proxy.
 
+Locally:
+
 ```bash
 docker build -t instagraph .
 docker run -p 8080:8080 \
@@ -195,23 +197,60 @@ docker run -p 8080:8080 \
 Then open **http://localhost:8080**. Double underscores are how .NET reads nested configuration from
 the environment, and environment variables beat `appsettings.json`, so no secret needs to be in a file.
 
-Deploys as-is to anything that takes a Dockerfile — Railway, Render, Fly.io, Azure Container Apps.
-Two things to set up there:
+#### The database: Azure SQL
 
-- **A managed SQL Server** — Azure SQL, or SQL Server on any host — and its connection string.
-- **A mounted volume at `/app/wwwroot/uploads`.** Container filesystems are ephemeral: without one,
-  every redeploy drops the uploaded photos while their rows stay in the database.
+The app is EF Core on SQL Server, and the migrations run themselves at startup, so a fresh Azure SQL
+database needs no preparation — point the API at it and the schema appears on first boot.
+
+1. Azure Portal → **SQL databases** → **Create**. Pick the **Free** offer (32 GB, 100k vCore-seconds
+   a month). Database name `InstaGraphDb`.
+2. Authentication: **SQL authentication**. Keep the admin login and password.
+3. After it deploys → **Networking** → allow the app host to reach it. Railway's egress addresses are
+   not fixed, so this means opening the firewall broadly — which makes the admin password the only
+   thing guarding the database. Make it long and random.
+4. **Connection strings** → ADO.NET. It arrives with `Password={your_password}` as a literal; replace
+   that. Keep `Encrypt=True`, and do **not** add `TrustServerCertificate=True` — Azure presents a
+   valid certificate and disabling the check throws away the protection the encryption is there for.
+
+The free tier **auto-pauses when idle**. The DbContext enables `EnableRetryOnFailure`, so the first
+request after a pause waits and retries rather than erroring — expect a slow first load, not a failure.
+
+#### The app: Railway
+
+`railway.json` pins the builder to the Dockerfile. Without it Railway's autodetection finds
+`frontend/package.json` and tries to build this as a Node app.
+
+1. **New Project → Deploy from GitHub repo** → `heralagiankita-gif/InstaGraph`.
+2. **Variables** — add these two:
+   ```
+   ConnectionStrings__DefaultConnection = <the Azure SQL string from above>
+   Jwt__SecretKey                       = <64+ random characters>
+   ```
+   Setting `Jwt__SecretKey` is not optional. The value in `appsettings.example.json` is a placeholder
+   committed to a public repo; anyone could forge a token for any account with it.
+3. **Settings → Volumes** → add a volume mounted at **`/app/wwwroot/uploads`**. Container disks are
+   wiped on every redeploy, so without this the photos vanish while their rows stay in the database.
+4. **Settings → Networking → Generate Domain.**
+
+The container reads Railway's `$PORT` at start rather than binding a fixed 8080, so no port
+configuration is needed.
 
 ### Frontend on Vercel, API elsewhere
 
-Only if you want the CDN. `vercel.json` at the repo root already declares the build, the output
-directory and the SPA rewrite, so nothing needs setting in the dashboard — but **replace
-`YOUR-API-HOST` in it first**, in all three proxy rewrites. Then add the Vercel origin to the API's
-allowed origins, since this split does involve two of them:
+Optional, and only worth it for the CDN — the Railway deployment above already serves the frontend on
+its own. `vercel.json` at the repo root declares the build, the output directory and the SPA rewrite,
+so nothing needs setting in the dashboard, with two exceptions:
 
-```bash
-Cors__AllowedOrigins__0=https://your-app.vercel.app
-```
+- **Replace `YOUR-API-HOST`** in all three proxy rewrites with the Railway domain. Until that is a real
+  host, the page loads and every API call fails — which looks like a broken app rather than a
+  placeholder left in a config file.
+- **Deployment Protection is on by default.** Every request 302s to `vercel.com/sso-api` and only your
+  own logged-in browser gets through, so the site appears fine to you and unreachable to everyone else.
+  Turn it off at *Project → Settings → Deployment Protection → Vercel Authentication → Disabled*.
+
+CORS needs nothing: the rewrites are server-side, so the browser only ever sees its own origin. If you
+later call the API directly rather than through the proxy, add the origin with
+`Cors__AllowedOrigins__0=https://your-app.vercel.app`.
 
 The trade-off: SignalR is proxied, so it will likely settle for server-sent events rather than a
 WebSocket. Messaging and notifications still work; they just reconnect more.
