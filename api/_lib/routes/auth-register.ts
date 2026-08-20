@@ -1,8 +1,8 @@
-import { digest, hashPassword } from '../_lib/auth';
-import { db, ready } from '../_lib/db';
-import { badRequest, body, conflict, handler, methods, text } from '../_lib/http';
-import { normaliseEmail } from '../_lib/signup';
-import { checkUsername } from '../_lib/usernames';
+import { digest, hashPassword } from '../auth';
+import { db, ready } from '../db';
+import { badRequest, body, conflict, handler, methods, text } from '../http';
+import { normaliseEmail } from '../signup';
+import { checkUsername } from '../usernames';
 
 const MIN_PASSWORD = 8;
 const MAX_PASSWORD = 100;

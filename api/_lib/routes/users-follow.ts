@@ -1,6 +1,6 @@
-import { requireUser } from '../../_lib/auth';
-import { db, ready } from '../../_lib/db';
-import { badRequest, handler, methods, notFound } from '../../_lib/http';
+import { requireUser } from '../auth';
+import { db, ready } from '../db';
+import { badRequest, handler, methods, notFound } from '../http';
 
 /**
  * Follows and unfollows. POST adds the edge, DELETE removes it.

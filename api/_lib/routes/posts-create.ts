@@ -1,7 +1,7 @@
-import { requireUser } from '../_lib/auth';
-import { db, ready } from '../_lib/db';
-import { badRequest, body, handler, methods } from '../_lib/http';
-import { POST_COLUMNS, POST_JOINS, linkHashtags, toPost, type PostRow } from '../_lib/posts';
+import { requireUser } from '../auth';
+import { db, ready } from '../db';
+import { badRequest, body, handler, methods } from '../http';
+import { POST_COLUMNS, POST_JOINS, linkHashtags, toPost, type PostRow } from '../posts';
 
 /**
  * Creates a post.

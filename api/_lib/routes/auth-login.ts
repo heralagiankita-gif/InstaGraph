@@ -1,6 +1,6 @@
-import { checkPassword, issue, summary, type UserRow } from '../_lib/auth';
-import { db, ready } from '../_lib/db';
-import { body, handler, methods, text, unauthorized } from '../_lib/http';
+import { checkPassword, issue, summary, type UserRow } from '../auth';
+import { db, ready } from '../db';
+import { body, handler, methods, text, unauthorized } from '../http';
 
 /** Signs in with a username or an email — Instagram accepts either, so this does too. */
 export default handler(async (req) => {

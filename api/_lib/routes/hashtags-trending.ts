@@ -1,6 +1,6 @@
-import { requireUser } from '../_lib/auth';
-import { db, ready } from '../_lib/db';
-import { handler, methods } from '../_lib/http';
+import { requireUser } from '../auth';
+import { db, ready } from '../db';
+import { handler, methods } from '../http';
 
 /** The tags carrying the most posts, for the row across the top of Explore. */
 export default handler(async (req) => {

@@ -1,6 +1,6 @@
-import { requireUser } from '../_lib/auth';
-import { db, ready } from '../_lib/db';
-import { handler, methods } from '../_lib/http';
+import { requireUser } from '../auth';
+import { db, ready } from '../db';
+import { handler, methods } from '../http';
 
 /** Drives the red dot on the sidebar. */
 export default handler(async (req, res) => {

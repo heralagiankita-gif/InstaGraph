@@ -1,6 +1,6 @@
-import { requireUser, summary, type UserRow } from '../_lib/auth';
-import { db, ready } from '../_lib/db';
-import { handler, methods } from '../_lib/http';
+import { requireUser, summary, type UserRow } from '../auth';
+import { db, ready } from '../db';
+import { handler, methods } from '../http';
 
 /** Search by username or name. Prefix matches rank above matches buried in the middle of a word. */
 export default handler(async (req) => {

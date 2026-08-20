@@ -1,6 +1,6 @@
-import { handler, methods } from '../_lib/http';
-import { ready } from '../_lib/db';
-import { checkUsername } from '../_lib/usernames';
+import { handler, methods } from '../http';
+import { ready } from '../db';
+import { checkUsername } from '../usernames';
 
 /** Whether a username is free, with free alternatives when it is not. Called while somebody types. */
 export default handler(async (req) => {

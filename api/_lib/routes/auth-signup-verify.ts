@@ -1,7 +1,7 @@
-import { digest, randomToken } from '../../_lib/auth';
-import { db, ready } from '../../_lib/db';
-import { badRequest, body, handler, methods, tooMany } from '../../_lib/http';
-import { MAX_ATTEMPTS, TOKEN_MINUTES, normaliseEmail } from '../../_lib/signup';
+import { digest, randomToken } from '../auth';
+import { db, ready } from '../db';
+import { badRequest, body, handler, methods, tooMany } from '../http';
+import { MAX_ATTEMPTS, TOKEN_MINUTES, normaliseEmail } from '../signup';
 
 /**
  * Step two of three: exchange the six digits for the single-use token that register requires.

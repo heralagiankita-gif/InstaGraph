@@ -1,7 +1,7 @@
-import { requireUser } from '../_lib/auth';
-import { db, ready } from '../_lib/db';
-import { handler, methods } from '../_lib/http';
-import { POST_COLUMNS, POST_JOINS, page, paging, toPost, type PostRow } from '../_lib/posts';
+import { requireUser } from '../auth';
+import { db, ready } from '../db';
+import { handler, methods } from '../http';
+import { POST_COLUMNS, POST_JOINS, page, paging, toPost, type PostRow } from '../posts';
 
 /**
  * Explore: posts from accounts you do not follow.

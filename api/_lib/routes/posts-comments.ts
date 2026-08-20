@@ -1,7 +1,7 @@
-import { requireUser, summary } from '../../_lib/auth';
-import { db, ready } from '../../_lib/db';
-import { badRequest, body, handler, methods, notFound, text } from '../../_lib/http';
-import { page, paging } from '../../_lib/posts';
+import { requireUser, summary } from '../auth';
+import { db, ready } from '../db';
+import { badRequest, body, handler, methods, notFound, text } from '../http';
+import { page, paging } from '../posts';
 
 interface CommentRow {
   id: number; body: string; like_count: number; created_at: Date; author_id: number;
