@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { HttpError } from './http';
 
 /**
  * One Postgres pool per warm serverless instance.
@@ -22,7 +23,10 @@ function connectionString(): string {
     process.env.POSTGRES_URL_NON_POOLING;
 
   if (!url) {
-    throw new Error(
+    // 503 rather than 500: this is configuration missing, not code failing, and the message is safe to
+    // show because it names no secret — only the two clicks that fix it.
+    throw new HttpError(
+      503,
       'No database is connected. In the Vercel dashboard: Storage → Create Database → Postgres, ' +
         'then connect it to this project. That sets POSTGRES_URL automatically.',
     );

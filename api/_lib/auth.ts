@@ -3,7 +3,7 @@ import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import type { VercelRequest } from '@vercel/node';
 import { db, ready } from './db';
-import { unauthorized } from './http';
+import { HttpError, unauthorized } from './http';
 
 const TOKEN_HOURS = 8;
 
@@ -14,7 +14,8 @@ function secret(): string {
   // same as no authentication at all — anyone could mint a token for any account — and a default would
   // make that failure invisible instead of loud.
   if (!key || key.length < 32) {
-    throw new Error(
+    throw new HttpError(
+      503,
       'JWT_SECRET is missing or too short. Set it in the Vercel project to at least 32 random characters.',
     );
   }
