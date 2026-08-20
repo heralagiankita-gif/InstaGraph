@@ -82,14 +82,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
 }
 
 /**
- * The path segments after /api, read from the URL rather than from req.query.
+ * The path segments after /api.
  *
- * A catch-all file is named `[...path]`, and Vercel puts the captured value under a query key named for
- * the whole bracket expression — `...path`, dots included — not `path`. Reading the URL sidesteps that
- * naming entirely, and keeps working if it ever changes.
+ * `p` is set by the rewrite in vercel.json, which is what actually gets a request here: with an
+ * outputDirectory configured, Vercel resolved /api/feed to this function but not /api/feed/explore, so
+ * depth-two paths fell through to its own 404 and the router never ran. The rewrite makes every /api
+ * path arrive here regardless of depth and carries the original path along in `p`.
+ *
+ * The URL is the fallback, and it is also what a catch-all filename would have needed: Vercel puts a
+ * `[...path]` capture under a query key named for the whole bracket expression — `...path`, dots
+ * included — not `path`. Reading the URL sidesteps that naming entirely.
  */
 function pathSegments(req: VercelRequest): string[] {
-  const pathname = (req.url ?? '').split('?')[0];
+  const captured = req.query.p;
+  const fromRewrite = Array.isArray(captured) ? captured[0] : captured;
+
+  const pathname = (fromRewrite ?? (req.url ?? '').split('?')[0]) as string;
   const segments = pathname.split('/').filter(Boolean);
 
   // Both shapes turn up: the original /api/feed/explore, and a rewritten path that has already had the

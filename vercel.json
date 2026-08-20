@@ -6,7 +6,11 @@
   "framework": null,
   "rewrites": [
     {
-      "source": "/((?!api/|hubs/|uploads/).*)",
+      "source": "/api/(.*)",
+      "destination": "/api?p=$1"
+    },
+    {
+      "source": "/((?!api|hubs/|uploads/).*)",
       "destination": "/index.html"
     }
   ],
