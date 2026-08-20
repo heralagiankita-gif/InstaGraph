@@ -235,6 +235,34 @@ request after a pause waits and retries rather than erroring — expect a slow f
 The container reads Railway's `$PORT` at start rather than binding a fixed 8080, so no port
 configuration is needed.
 
+### Vercel only — the sign-up path on serverless functions
+
+`api/` holds a Node implementation of the auth endpoints, so sign-up and login work on Vercel with no
+.NET anywhere. The Angular app needs no changes: it already calls `/api/...` on its own origin, and
+these functions answer on exactly the paths and JSON shapes the .NET controllers use.
+
+What is implemented: `signup/start`, `signup/resend`, `signup/verify`, `username-available`,
+`register`, `login`, `me`. Everything else — feed, posts, stories, messaging, the graph ranking — is
+still only in the .NET API. Those routes return 404 here.
+
+**Three things to set in the Vercel dashboard:**
+
+1. **Storage → Create Database → Postgres**, then connect it to the project. That injects
+   `POSTGRES_URL` on its own; nothing needs copying. The tables are created on the first request that
+   needs them, so there is no migration step.
+2. **Settings → Environment Variables → `JWT_SECRET`**, at least 32 random characters. The functions
+   refuse to start without it rather than falling back to a default, because a signing key with a known
+   value is the same as no authentication at all.
+3. **Email, optional.** Set `EMAIL_USER` and `EMAIL_PASSWORD` (a Gmail App Password, not the account
+   password) and codes are emailed. Leave them unset and the response carries the code back to the
+   sign-up screen instead, which shows it with a *Fill it in* button — the same behaviour the .NET API
+   has on a Development build, and what keeps the deployment completable before mail is configured.
+   Be aware that means anyone can confirm any address until you set them.
+
+The rules match the .NET service deliberately: 10-minute codes, 5 wrong guesses, 5 sends, a 30-second
+resend cooldown, a single-use 30-minute verification token, minimum age 13, and an 8-character password
+floor. Codes and tokens are stored as SHA-256 digests, passwords with bcrypt.
+
 ### Frontend on Vercel, API elsewhere
 
 `vercel.json` at the repo root declares the build, the output directory and the SPA rewrite, so

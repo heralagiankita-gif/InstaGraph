@@ -1,0 +1,24 @@
+{
+  "name": "instagraph-api-functions",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Vercel serverless functions serving /api for the InstaGraph frontend. See README section 1c.",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.14",
+    "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.14.0",
+    "@types/nodemailer": "^6.4.15",
+    "@types/pg": "^8.11.6",
+    "@vercel/node": "^3.2.0",
+    "typescript": "^5.5.0"
+  }
+}

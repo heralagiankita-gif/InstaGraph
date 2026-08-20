@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "echo 'nothing to install at the root'",
-  "buildCommand": "cd frontend && npm ci && npm run build",
+  "installCommand": "npm install && cd frontend && npm ci",
+  "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/dist/instagraph-ui/browser",
   "framework": null,
   "rewrites": [
