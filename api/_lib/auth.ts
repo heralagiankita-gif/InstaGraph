@@ -8,19 +8,36 @@ import { HttpError, unauthorized } from './http';
 const TOKEN_HOURS = 8;
 
 function secret(): string {
-  const key = process.env.JWT_SECRET;
+  const explicit = process.env.JWT_SECRET;
 
-  // Deliberately fatal rather than falling back to a default. A signing key with a known value is the
-  // same as no authentication at all — anyone could mint a token for any account — and a default would
-  // make that failure invisible instead of loud.
-  if (!key || key.length < 32) {
-    throw new HttpError(
-      503,
-      'JWT_SECRET is missing or too short. Set it in the Vercel project to at least 32 random characters.',
-    );
+  if (explicit && explicit.length >= 32) {
+    return explicit;
   }
 
-  return key;
+  // Falling back to something derived from the database URL, rather than to a constant.
+  //
+  // The distinction is the whole point. A hardcoded default would be public knowledge — anyone could
+  // mint a token for any account — whereas the connection string is already a secret, is already
+  // required for the app to function at all, and is identical across every instance, which is what a
+  // signing key has to be or sessions break as requests land on different machines.
+  //
+  // It exists so that connecting a database is the only setup step. Set JWT_SECRET explicitly and it
+  // wins; the trade-off of the fallback is that rotating the database password signs everyone out.
+  const database =
+    process.env.POSTGRES_URL ??
+    process.env.DATABASE_URL ??
+    process.env.POSTGRES_PRISMA_URL ??
+    process.env.POSTGRES_URL_NON_POOLING;
+
+  if (database) {
+    return crypto.createHash('sha256').update(`instagraph:jwt:${database}`).digest('hex');
+  }
+
+  throw new HttpError(
+    503,
+    'No database is connected, so there is nothing to sign sessions with. Connect a Postgres database ' +
+      'to this Vercel project, or set JWT_SECRET to 32 or more random characters.',
+  );
 }
 
 export interface UserRow {
