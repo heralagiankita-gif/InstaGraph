@@ -59,8 +59,7 @@ const ROUTES: [string, Route][] = [
 ];
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
-  const raw = req.query.path;
-  const segments = (Array.isArray(raw) ? raw : raw ? [raw] : []).filter(Boolean);
+  const segments = pathSegments(req);
 
   for (const [pattern, route] of ROUTES) {
     const params = match(pattern, segments);
@@ -80,6 +79,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     path: req.url ?? '',
     timestamp: new Date().toISOString(),
   });
+}
+
+/**
+ * The path segments after /api, read from the URL rather than from req.query.
+ *
+ * A catch-all file is named `[...path]`, and Vercel puts the captured value under a query key named for
+ * the whole bracket expression — `...path`, dots included — not `path`. Reading the URL sidesteps that
+ * naming entirely, and keeps working if it ever changes.
+ */
+function pathSegments(req: VercelRequest): string[] {
+  const pathname = (req.url ?? '').split('?')[0];
+  const segments = pathname.split('/').filter(Boolean);
+
+  // Both shapes turn up: the original /api/feed/explore, and a rewritten path that has already had the
+  // prefix stripped. Dropping a leading "api" handles the first and is harmless to the second, since
+  // nothing this API serves is itself called "api".
+  if (segments[0] === 'api') {
+    segments.shift();
+  }
+
+  return segments.map((segment) => decodeURIComponent(segment));
 }
 
 /** Returns the captured params when the pattern matches, or null when it does not. */
