@@ -21,28 +21,4 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
   </ItemGroup>
 
-  <!--
-    `dotnet publish` folds the built Angular app into the published wwwroot, so a deployment is one
-    artifact on one origin: no CORS, no second host, and WebSockets that actually upgrade.
-
-    This runs at publish time only and writes only into the publish output. A plain `dotnet run` or
-    `dotnet build` is untouched, which matters because the working wwwroot holds uploaded photos and
-    nothing here should ever go near them. Run `npm run build` in frontend/ first; if there is no dist
-    the condition skips the target and publish produces an API-only build, which is still valid.
-  -->
-  <PropertyGroup>
-    <AngularDistPath>$(MSBuildProjectDirectory)/../../frontend/dist/instagraph-ui/browser</AngularDistPath>
-  </PropertyGroup>
-
-  <Target Name="PublishAngular" AfterTargets="ComputeFilesToPublish" Condition="Exists('$(AngularDistPath)')">
-    <ItemGroup>
-      <AngularDist Include="$(AngularDistPath)/**/*" />
-      <ResolvedFileToPublish Include="@(AngularDist)">
-        <RelativePath>wwwroot/%(RecursiveDir)%(Filename)%(Extension)</RelativePath>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </ResolvedFileToPublish>
-    </ItemGroup>
-    <Message Importance="high" Text="Bundled the Angular build from $(AngularDistPath) into wwwroot." />
-  </Target>
-
 </Project>

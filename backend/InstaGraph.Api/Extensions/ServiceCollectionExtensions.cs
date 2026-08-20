@@ -26,18 +26,8 @@ public static class ServiceCollectionExtensions
         services.Configure<GraphSettings>(config.GetSection(GraphSettings.SectionName));
         services.Configure<EmailSettings>(config.GetSection(EmailSettings.SectionName));
 
-        // Retry on transient failures. On a local SQL Server this almost never fires; against a hosted
-        // database it is the difference between working and not. Azure SQL's free tier pauses itself
-        // when idle and throttles under load, and both surface as an exception on a connection that
-        // would succeed a second later — so the first visitor after a quiet hour gets an error page
-        // unless something retries for them. Safe here only because nothing in this codebase opens an
-        // explicit transaction: the retrying execution strategy refuses to wrap one it did not start.
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(config.GetConnectionString("DefaultConnection"),
-                sql => sql.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: TimeSpan.FromSeconds(10),
-                    errorNumbersToAdd: null)));
+            options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
 
         services.AddHttpContextAccessor();
 
