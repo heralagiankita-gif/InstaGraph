@@ -102,4 +102,103 @@ async function migrate(): Promise<void> {
       token_expires_at  TIMESTAMPTZ
     );
   `);
+
+  // A follow is a directed edge, and the pair is the identity — hence the composite primary key rather
+  // than a surrogate id with a unique index bolted on beside it. is_pending carries requests to private
+  // accounts, which are edges that exist without being active yet.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS follows (
+      follower_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      followee_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      is_pending  BOOLEAN NOT NULL DEFAULT FALSE,
+      created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (follower_id, followee_id),
+      CHECK (follower_id <> followee_id)
+    );
+  `);
+
+  // Reading the graph goes both ways — "who do I follow" and "who follows me" are different questions
+  // and the primary key only indexes the first.
+  await pool.query(`CREATE INDEX IF NOT EXISTS follows_followee_idx ON follows (followee_id);`);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS posts (
+      id            SERIAL PRIMARY KEY,
+      author_id     INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      caption       TEXT NOT NULL DEFAULT '',
+      location      TEXT,
+      is_archived   BOOLEAN NOT NULL DEFAULT FALSE,
+      is_reel       BOOLEAN NOT NULL DEFAULT FALSE,
+      like_count    INT NOT NULL DEFAULT 0,
+      comment_count INT NOT NULL DEFAULT 0,
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+
+  await pool.query(`CREATE INDEX IF NOT EXISTS posts_author_idx ON posts (author_id, created_at DESC);`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS posts_created_idx ON posts (created_at DESC);`);
+
+  // A post is a list of things to look at, not one column.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS post_media (
+      id       SERIAL PRIMARY KEY,
+      post_id  INT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+      url      TEXT NOT NULL,
+      is_video BOOLEAN NOT NULL DEFAULT FALSE,
+      position INT NOT NULL DEFAULT 0
+    );
+  `);
+
+  await pool.query(`CREATE INDEX IF NOT EXISTS post_media_post_idx ON post_media (post_id, position);`);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS post_likes (
+      post_id    INT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+      user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (post_id, user_id)
+    );
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS comments (
+      id         SERIAL PRIMARY KEY,
+      post_id    INT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+      author_id  INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      body       TEXT NOT NULL,
+      like_count INT NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+
+  await pool.query(`CREATE INDEX IF NOT EXISTS comments_post_idx ON comments (post_id, created_at);`);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS hashtags (
+      id  SERIAL PRIMARY KEY,
+      tag TEXT NOT NULL UNIQUE
+    );
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS post_hashtags (
+      post_id    INT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+      hashtag_id INT NOT NULL REFERENCES hashtags(id) ON DELETE CASCADE,
+      PRIMARY KEY (post_id, hashtag_id)
+    );
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS notifications (
+      id         SERIAL PRIMARY KEY,
+      user_id    INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      actor_id   INT REFERENCES users(id) ON DELETE CASCADE,
+      kind       TEXT NOT NULL,
+      post_id    INT REFERENCES posts(id) ON DELETE CASCADE,
+      is_read    BOOLEAN NOT NULL DEFAULT FALSE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+
+  await pool.query(`CREATE INDEX IF NOT EXISTS notifications_user_idx ON notifications (user_id, created_at DESC);`);
 }
