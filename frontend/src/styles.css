@@ -1,0 +1,1451 @@
+/* ---------------------------------------------------------------------------
+   InstaGraph design tokens.
+
+   One neutral scale, and a colour layer — the vibe — sitting on top of it. The
+   neutrals below never change with the vibe, which is what lets the two choices
+   be made independently and in any order.
+
+   Three theme states: no attribute follows the operating system, and an
+   explicit data-theme on <html> overrides it in either direction. Vibes work the
+   same way, on data-vibe; see the block below.
+   --------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --surface-2: #ffffff;
+  --border: #dbdbdb;
+  --border-soft: #efefef;
+  --skeleton: #eceded;
+  --skeleton-shine: #f7f8f8;
+
+  --ink: #000000;
+  --ink-2: #262626;
+  --ink-3: #737373;
+  --ink-4: #a8a8a8;
+
+  /* The grey pill behind "Edit profile", "Message" and every secondary action. */
+  --secondary: #efefef;
+  --secondary-hover: #dbdbdb;
+  --hover: rgba(0, 0, 0, 0.05);
+  --danger: #ed4956;
+
+  /* Rounder than the real thing on purpose. A 8px button reads as "software"; a 14px one
+     reads as an app somebody chose to install. */
+  --radius: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 30px;
+  --pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 22px 60px rgba(0, 0, 0, 0.18);
+
+  --sidebar-w: 245px;
+  /* What the sidebar shrinks to when a panel slides over it, and below 1264px. */
+  --sidebar-narrow: 73px;
+
+  /* Two faces: one grotesk that reads well at 13px for the interface, one heavier one that only
+     ever appears large — headings, counts, the empty-state line. Both fall back to the system
+     stack, so the layout is identical before the webfont lands. */
+  --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  --display: 'Bricolage Grotesque', 'Plus Jakarta Sans', -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.3, 1);
+  /* Overshoots and settles. Everything that appears — a sheet, a heart, a chip — uses this. */
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ---------------------------------------------------------------------------
+   Vibes.
+
+   A vibe is the colour half of the interface: the accent, the gradient behind the
+   wordmark and the story rings, the glow under a primary button, and the three
+   blobs that wash the page background. The neutral scale above and the light/dark
+   choice are deliberately untouched by it, so any vibe works in either theme.
+
+   Set with data-vibe on <html>; see core/vibe.service.ts. No attribute is Aurora.
+   --------------------------------------------------------------------------- */
+
+:root,
+:root[data-vibe='aurora'] {
+  --accent: #7c4dff;
+  --accent-hover: #6a35ff;
+  --accent-ink: #ffffff;
+  --brand: linear-gradient(100deg, #ff5f9e 0%, #a44cff 48%, #35d3ff 100%);
+  --brand-ink: #ffffff;
+  --ring: conic-gradient(from 200deg, #ff5f9e, #a44cff, #35d3ff, #ff5f9e);
+  --glow: rgba(124, 77, 255, 0.45);
+  --aura-1: #ff5f9e;
+  --aura-2: #a44cff;
+  --aura-3: #35d3ff;
+}
+
+:root[data-vibe='sunset'] {
+  --accent: #ff5a36;
+  --accent-hover: #f04520;
+  --accent-ink: #ffffff;
+  --brand: linear-gradient(100deg, #ffc531 0%, #ff5a36 50%, #ff2d78 100%);
+  --brand-ink: #2a0d05;
+  --ring: conic-gradient(from 200deg, #ffc531, #ff5a36, #ff2d78, #ffc531);
+  --glow: rgba(255, 90, 54, 0.45);
+  --aura-1: #ffc531;
+  --aura-2: #ff5a36;
+  --aura-3: #ff2d78;
+}
+
+:root[data-vibe='y2k'] {
+  --accent: #ff35c8;
+  --accent-hover: #ea1fb3;
+  --accent-ink: #ffffff;
+  --brand: linear-gradient(100deg, #59f0ff 0%, #b39dff 45%, #ff35c8 100%);
+  --brand-ink: #0d0a22;
+  --ring: conic-gradient(from 200deg, #59f0ff, #b39dff, #ff35c8, #59f0ff);
+  --glow: rgba(255, 53, 200, 0.45);
+  --aura-1: #59f0ff;
+  --aura-2: #b39dff;
+  --aura-3: #ff35c8;
+}
+
+:root[data-vibe='matcha'] {
+  --accent: #3fa34d;
+  --accent-hover: #338a3f;
+  --accent-ink: #ffffff;
+  --brand: linear-gradient(100deg, #d7f56b 0%, #3fa34d 55%, #0f766e 100%);
+  --brand-ink: #08210f;
+  --ring: conic-gradient(from 200deg, #d7f56b, #3fa34d, #0f766e, #d7f56b);
+  --glow: rgba(63, 163, 77, 0.42);
+  --aura-1: #d7f56b;
+  --aura-2: #3fa34d;
+  --aura-3: #0f766e;
+}
+
+:root[data-vibe='cyber'] {
+  --accent: #00e5a0;
+  --accent-hover: #00c98d;
+  /* The only vibe whose accent is light enough to need dark text on top of it. */
+  --accent-ink: #04120d;
+  --brand: linear-gradient(100deg, #00e5a0 0%, #7cf03d 45%, #b14bff 100%);
+  --brand-ink: #04120d;
+  --ring: conic-gradient(from 200deg, #00e5a0, #7cf03d, #b14bff, #00e5a0);
+  --glow: rgba(0, 229, 160, 0.45);
+  --aura-1: #00e5a0;
+  --aura-2: #7cf03d;
+  --aura-3: #b14bff;
+}
+
+:root[data-vibe='bubblegum'] {
+  --accent: #ff6392;
+  --accent-hover: #f7477c;
+  --accent-ink: #ffffff;
+  --brand: linear-gradient(100deg, #ffd6e8 0%, #ff6392 50%, #7ec8ff 100%);
+  --brand-ink: #2b0f1c;
+  --ring: conic-gradient(from 200deg, #ffd6e8, #ff6392, #7ec8ff, #ffd6e8);
+  --glow: rgba(255, 99, 146, 0.42);
+  --aura-1: #ffd6e8;
+  --aura-2: #ff6392;
+  --aura-3: #7ec8ff;
+}
+
+/* The way the app looked before there were vibes, for anyone who wants it back. */
+:root[data-vibe='classic'] {
+  --accent: #0095f6;
+  --accent-hover: #1877f2;
+  --accent-ink: #ffffff;
+  --brand: linear-gradient(95deg, #f9ce34 0%, #ee2a7b 45%, #6228d7 100%);
+  --brand-ink: #2b1004;
+  --ring: linear-gradient(45deg, #f9ce34, #ee2a7b 45%, #6228d7);
+  --glow: rgba(0, 149, 246, 0.4);
+  --aura-1: #f9ce34;
+  --aura-2: #ee2a7b;
+  --aura-3: #6228d7;
+}
+
+/* Following the system, when the system says dark. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --bg: #000000;
+    --surface: #0a0a0a;
+    --surface-2: #121212;
+    --border: #262626;
+    --border-soft: #1a1a1a;
+    --skeleton: #1a1a1a;
+    --skeleton-shine: #262626;
+
+    --ink: #ffffff;
+    --ink-2: #f5f5f5;
+    --ink-3: #a8a8a8;
+    --ink-4: #737373;
+
+    --secondary: #363636;
+    --secondary-hover: #262626;
+    --hover: rgba(255, 255, 255, 0.08);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 6px 22px rgba(0, 0, 0, 0.6);
+    --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.75);
+  }
+}
+
+/* Chosen explicitly, which wins over the system either way. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --surface-2: #121212;
+  --border: #262626;
+  --border-soft: #1a1a1a;
+  --skeleton: #1a1a1a;
+  --skeleton-shine: #262626;
+
+  --ink: #ffffff;
+  --ink-2: #f5f5f5;
+  --ink-3: #a8a8a8;
+  --ink-4: #737373;
+
+  --secondary: #363636;
+  --secondary-hover: #262626;
+  --hover: rgba(255, 255, 255, 0.08);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 6px 22px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.75);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/*
+  The handful of things that separate a website on a phone from something that feels like an app.
+
+  The grey flash on every tap is the giveaway more than anything else; after that it is the browser
+  offering to select a label, and the whole page rubber-banding when a list is already at its top.
+*/
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+.nav-item,
+.tab,
+.menu-item {
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* Text people might actually want to copy is exempt. */
+p,
+.caption,
+.bio,
+input,
+textarea,
+.bubble {
+  user-select: text;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  overscroll-behavior-y: none;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: rgba(0, 149, 246, 0.25);
+}
+
+/* Keep the scrollbar from repainting the page white in dark mode. */
+* {
+  scrollbar-color: var(--border) transparent;
+  scrollbar-width: thin;
+}
+
+/* ------------------------------------------------------------------ buttons */
+
+.btn {
+  /* inline-flex, not the browser default inline, so an <a class="btn"> gets the same box as a
+     <button class="btn"> — otherwise vertical margins collapse and it overlaps the text above it. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: var(--pill);
+  padding: 8px 18px;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-decoration: none;
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 4px 14px -4px var(--glow);
+  transition: background 0.14s var(--ease), transform 0.16s var(--spring),
+    box-shadow 0.16s var(--ease), opacity 0.14s var(--ease);
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px -6px var(--glow);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.955);
+  box-shadow: 0 2px 8px -4px var(--glow);
+}
+
+/*
+  A disabled button has to read as disabled at a glance, and opacity alone does not do that to a
+  saturated gradient — at 45% the brand purple is still a confident purple, so it looks pressable, gets
+  pressed, and does nothing. Draining the colour as well is what makes the difference visible.
+*/
+.btn:disabled {
+  opacity: 0.4;
+  filter: saturate(0.25);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: var(--secondary);
+  color: var(--ink);
+  box-shadow: none;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--secondary-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: var(--border-soft);
+  box-shadow: none;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--accent);
+  padding: 4px 8px;
+  border: 0;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  color: var(--ink);
+}
+
+.btn-ghost:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--danger);
+  box-shadow: none;
+}
+
+.btn-block {
+  display: flex;
+  width: 100%;
+  padding: 10px 16px;
+}
+
+/* A round icon-only button, for the ⋯ and ⚙ next to a name. */
+.btn-icon {
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  font-size: 15px;
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+/* The loud one: the vibe gradient as a fill, with a highlight that sweeps across on hover. */
+.btn-brand {
+  position: relative;
+  overflow: hidden;
+  background: var(--brand);
+  background-size: 220% 100%;
+  color: var(--brand-ink);
+  transition: background-position 0.5s var(--ease), transform 0.16s var(--spring),
+    box-shadow 0.16s var(--ease);
+}
+
+.btn-brand:hover:not(:disabled) {
+  background: var(--brand);
+  background-size: 220% 100%;
+  background-position: 100% 0;
+}
+
+.btn-brand::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 45%;
+  left: -60%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: skewX(-18deg);
+  pointer-events: none;
+}
+
+.btn-brand:hover:not(:disabled)::after {
+  animation: sweep 0.7s var(--ease);
+}
+
+@keyframes sweep {
+  to {
+    left: 120%;
+  }
+}
+
+/* ------------------------------------------------------------------- inputs */
+
+.input,
+.textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--ink);
+  border-radius: var(--radius);
+  padding: 11px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.14s var(--ease), background 0.14s var(--ease),
+    box-shadow 0.14s var(--ease);
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--ink-4);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.5;
+}
+
+.field {
+  margin-bottom: 12px;
+}
+
+.label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+}
+
+/* -------------------------------------------------------------------- cards */
+
+/*
+  Frosted by default. Every card in the app sits over the aura, and an opaque panel on top of a colour
+  wash reads as a hole punched in the page; letting a little of it through is what makes the whole
+  interface feel like one surface.
+
+  The blur is on a pseudo-element rather than on .card itself, and that is not a style choice. An
+  element with a backdrop-filter becomes the containing block for every position:fixed descendant, so
+  a card with the filter on it would trap the confirm dialog inside any follow button it happened to
+  contain — the sheet would be positioned against the card instead of the viewport. Putting the filter
+  one level down on a ::before leaves the card itself an ordinary box.
+*/
+.card {
+  position: relative;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+  border-radius: var(--radius-lg);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Behind the card's own content, in front of the page. */
+  z-index: -1;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  pointer-events: none;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .card::before {
+    background: var(--surface);
+  }
+}
+
+/* --------------------------------------------------------------- typography */
+
+.muted { color: var(--ink-3); }
+.tiny { font-size: 12px; }
+.small { font-size: 13px; }
+.strong { font-weight: 600; }
+
+.username {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.username:hover {
+  color: var(--ink-3);
+}
+
+.title {
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.gradient-text {
+  background: var(--brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------- layout */
+
+.row { display: flex; align-items: center; }
+.col { display: flex; flex-direction: column; }
+
+.gap-4 { gap: 4px; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+.gap-24 { gap: 24px; }
+.grow { flex: 1; }
+.wrap { flex-wrap: wrap; }
+.center { justify-content: center; }
+.between { justify-content: space-between; }
+
+.mt-4 { margin-top: 4px; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.mb-4 { margin-bottom: 4px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+
+/* ------------------------------------------------------------------ spinner */
+
+.spinner {
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--border);
+  border-top-color: var(--ink-3);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 24px auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ----------------------------------------------------------------- skeleton */
+
+/* A grey block that shimmers, shaped like the thing that is coming. Reads as
+   "loading" without the page jumping when the content lands. */
+.sk {
+  background: linear-gradient(
+    90deg,
+    var(--skeleton) 25%,
+    var(--skeleton-shine) 37%,
+    var(--skeleton) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.3s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+.sk-circle {
+  border-radius: 50%;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk {
+    animation: none;
+  }
+}
+
+/* -------------------------------------------------------------------- toast */
+
+.toast-host {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+}
+
+.toast-lane {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--ink-2);
+  color: var(--bg);
+  padding: 12px 10px 12px 18px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shadow-md);
+  max-width: 92vw;
+  animation: rise 0.2s var(--ease);
+  /* The host stays click-through so a pill never blocks the page underneath it; the pill itself has
+     to take clicks, or its own dismiss and action buttons would be decoration. */
+  pointer-events: auto;
+}
+
+.toast-text {
+  min-width: 0;
+}
+
+/* The same message, again. Cheaper to read than a second identical pill. */
+.toast-count {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.6;
+}
+
+.toast-action {
+  flex: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 2px 4px;
+  border-radius: 8px;
+}
+
+.toast-close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-size: 11px;
+  opacity: 0.55;
+  transition: opacity 0.14s var(--ease), background 0.14s var(--ease);
+}
+
+.toast-action:hover,
+.toast-close:hover {
+  opacity: 1;
+  background: rgba(128, 128, 128, 0.28);
+}
+
+.toast-action:focus-visible,
+.toast-close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}
+
+:root[data-theme='dark'] .toast,
+:root:not([data-theme='light']) .toast {
+  color: #000;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) .toast {
+    color: #fff;
+  }
+}
+
+.toast.error {
+  background: var(--danger);
+  color: #fff;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* -------------------------------------------------------------------- modal */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fade 0.16s var(--ease);
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 420px;
+  max-height: 86vh;
+  overflow: auto;
+  box-shadow: var(--shadow-lg);
+  animation: lift 0.26s var(--spring);
+}
+
+@keyframes lift {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.94);
+  }
+}
+
+.modal-head {
+  padding: 15px 16px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+
+/* ---------------------------------------------------------------- post grid */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+@media (min-width: 736px) {
+  .grid {
+    gap: 6px;
+  }
+}
+
+.grid-tile {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--skeleton);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.grid-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s var(--ease);
+}
+
+.grid-tile:hover img {
+  transform: scale(1.04);
+}
+
+.grid-tile .overlay {
+  position: absolute;
+  inset: 0;
+  /* A wash of the vibe rather than flat black, and darker at the bottom where the numbers sit. */
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--aura-2) 30%, rgba(0, 0, 0, 0.35)),
+    rgba(0, 0, 0, 0.62)
+  );
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  font-weight: 800;
+  opacity: 0;
+  backdrop-filter: blur(1px);
+  transition: opacity 0.18s var(--ease);
+}
+
+.grid-tile:hover .overlay {
+  opacity: 1;
+}
+
+/* ----------------------------------------------------------------- headings */
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.section-head h3 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+
+hr.rule {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 20px 0;
+}
+
+/* --------------------------------------------------------------- empty state */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 56px 20px 64px;
+  color: var(--ink-3);
+}
+
+/* A gradient disc rather than a hairline circle: an empty screen is the one place the app has
+   nothing else to look at, so it may as well be the thing carrying the vibe. */
+.empty .ring {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  font-size: 34px;
+  color: var(--brand-ink);
+  box-shadow: 0 12px 34px -12px var(--glow);
+  animation: bob 4s ease-in-out infinite;
+}
+
+@keyframes bob {
+  50% {
+    transform: translateY(-6px) rotate(-3deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .empty .ring {
+    animation: none;
+  }
+}
+
+.empty h4 {
+  margin: 0 0 8px;
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+}
+
+.empty p {
+  margin: 0;
+  max-width: 340px;
+  line-height: 1.6;
+}
+
+/* Anything projected in below the message — usually one call-to-action button. */
+.empty-actions {
+  margin-top: 22px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.empty-actions:empty {
+  display: none;
+}
+
+/* --------------------------------------------------------------------- chip */
+
+.chip {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 7px 15px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--surface);
+  transition: background 0.14s var(--ease), border-color 0.14s var(--ease);
+}
+
+.chip:hover {
+  background: var(--border-soft);
+  border-color: var(--ink-4);
+}
+
+/* The selected one in a row of filters. */
+.chip.on {
+  background: var(--brand);
+  border-color: transparent;
+  color: var(--brand-ink);
+  box-shadow: 0 6px 18px -8px var(--glow);
+}
+
+.chip.on:hover {
+  background: var(--brand);
+  border-color: transparent;
+}
+
+/* ---------------------------------------------------------------- fade-in */
+
+.fade-in {
+  animation: fadeUp 0.28s var(--ease) both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* ----------------------------------------------------------------- wordmark */
+
+/* The logo. Instagram's is set in Billabong; Grand Hotel is the nearest free
+   face, and a plain cursive keeps the shape if the font never arrives. */
+.wordmark {
+  font-family: 'Grand Hotel', 'Brush Script MT', cursive;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: 0.2px;
+  padding-bottom: 2px;
+  white-space: nowrap;
+
+  /* Painted in the vibe rather than in ink. The colour is the only thing that tells you which
+     vibe is on before you have scrolled anything, so the logo is where it belongs. */
+  background: var(--brand);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: drift 9s ease-in-out infinite;
+}
+
+@keyframes drift {
+  50% {
+    background-position: 100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wordmark {
+    animation: none;
+  }
+}
+
+/* --------------------------------------------------------------- menu sheet */
+
+/* The popup behind "More", and the ⋯ on a post: one column of full-width rows,
+   the destructive one first and in red, a hairline between each. */
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-family: inherit;
+  border-bottom: 1px solid var(--border-soft);
+  transition: background 0.1s var(--ease);
+}
+
+.menu-item:last-child {
+  border-bottom: 0;
+}
+
+.menu-item:hover {
+  background: var(--hover);
+}
+
+.menu-item.danger {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.menu-item.strong {
+  font-weight: 600;
+}
+
+.menu-item i {
+  font-size: 18px;
+  width: 20px;
+  flex: none;
+}
+
+/* ------------------------------------------------------------------- toggle */
+
+/* The sliding switch on "Switch appearance" and in settings. */
+.switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  flex: none;
+  border-radius: 999px;
+  border: 0;
+  padding: 0;
+  background: var(--ink-4);
+  transition: background 0.18s var(--ease);
+}
+
+.switch[aria-checked='true'] {
+  background: var(--ink);
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface);
+  transition: transform 0.18s var(--ease);
+}
+
+.switch[aria-checked='true']::after {
+  transform: translateX(20px);
+}
+
+/* ------------------------------------------------------------ explore grid */
+
+/* Explore is the same three columns as a profile, except every ninth tile is
+   twice as tall — which is what gives the page its uneven, magazine look. */
+/* Filling the two rows rather than naming a ratio: the ratio would have to be re-derived every time
+   the gap changed, and this is exact at any gap. */
+.grid.masonry .grid-tile.tall {
+  grid-row: span 2;
+  aspect-ratio: auto;
+  height: 100%;
+}
+
+/*
+  Rounded rather than butted together. Instagram's grid is a mosaic with no gaps; this one is a set of
+  cards, which is the same difference as between a contact sheet and a moodboard — and a moodboard is
+  the thing people actually make.
+*/
+.grid {
+  gap: 8px;
+}
+
+@media (min-width: 736px) {
+  .grid {
+    gap: 12px;
+  }
+}
+
+.grid-tile {
+  border-radius: var(--radius);
+  transition: transform 0.22s var(--spring), box-shadow 0.22s var(--ease);
+}
+
+.grid-tile:hover {
+  transform: translateY(-3px) scale(1.015);
+  box-shadow: 0 16px 34px -18px var(--glow);
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-tile:hover {
+    transform: none;
+  }
+}
+
+/* ===========================================================================
+   The Gen-Z layer.
+
+   Everything below is additive: an app that never used one of these classes
+   would look exactly as it did before. They exist so a screen can reach for
+   depth (glass), colour (aura, gradient rings), weight (sticker) or delight
+   (pop, burst, confetti) without each component inventing its own.
+   =========================================================================== */
+
+/* ------------------------------------------------------------------- aura */
+
+/*
+  Three soft blobs of the current vibe, fixed behind everything and drifting
+  slowly. They are what stops a dark page reading as a black rectangle and a
+  light one as a white one; the surfaces above them stay opaque, so nothing has
+  to fight the wash for contrast.
+
+  Painted on <body> rather than an element so it survives every route change.
+*/
+body::before {
+  content: '';
+  position: fixed;
+  inset: -20vmax;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(38vmax 38vmax at 12% 8%, color-mix(in srgb, var(--aura-1) 26%, transparent), transparent 62%),
+    radial-gradient(34vmax 34vmax at 88% 22%, color-mix(in srgb, var(--aura-2) 24%, transparent), transparent 62%),
+    radial-gradient(40vmax 40vmax at 50% 96%, color-mix(in srgb, var(--aura-3) 22%, transparent), transparent 64%);
+  filter: blur(30px);
+  animation: aura 26s ease-in-out infinite alternate;
+}
+
+/* A faint grain over the top. Large flat gradients band badly on an 8-bit
+   display; a little noise hides it and reads as texture rather than a defect. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@keyframes aura {
+  50% {
+    transform: translate3d(3%, -4%, 0) scale(1.12) rotate(6deg);
+  }
+  100% {
+    transform: translate3d(-4%, 3%, 0) scale(1.05) rotate(-5deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
+}
+
+/* Someone who has turned the aura off in settings gets a plain background. */
+:root[data-aura='off'] body::before,
+:root[data-aura='off'] body::after {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ glass */
+
+/*
+  A frosted panel. Only worth using over the aura — on a flat background a blur
+  of nothing just looks like a slightly wrong grey — so it is opt-in per element
+  rather than the default for .card.
+*/
+.glass {
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+/* Browsers without backdrop-filter fall back to an opaque surface, which is
+   plain but never unreadable. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--surface);
+  }
+}
+
+/* ------------------------------------------------------- gradient borders */
+
+/*
+  A 2px border in the vibe gradient. Done with two backgrounds and two clips
+  rather than a wrapper element, so it can go on anything that already has a
+  border-radius.
+*/
+.gradient-border {
+  position: relative;
+  background: var(--surface);
+  border: 0;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: var(--brand);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------- sticker */
+
+/* A chunky offset shadow, the flat kind on a sticker. Used for the things that
+   are meant to feel physical: a vibe swatch, a share card, a stat tile. */
+.sticker {
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow: 4px 4px 0 var(--ink);
+  transition: transform 0.16s var(--spring), box-shadow 0.16s var(--ease);
+}
+
+.sticker:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.sticker:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+/* ----------------------------------------------------------------- motion */
+
+/* Anything that should answer a pointer. Deliberately small — the overshoot in
+   --spring does the work, not the distance. */
+.pop {
+  transition: transform 0.18s var(--spring);
+}
+
+.pop:hover {
+  transform: scale(1.06);
+}
+
+.pop:active {
+  transform: scale(0.94);
+}
+
+/* Staggered entrance for a list: set --i on each row. */
+.stagger {
+  animation: fadeUp 0.4s var(--spring) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stagger,
+  .fade-in {
+    animation: none;
+  }
+}
+
+/* -------------------------------------------------------- heart and burst */
+
+/* The heart that blooms over a photo on a double-tap, and the one in the action
+   row that kicks when it is filled. */
+@keyframes bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) rotate(-12deg);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.25) rotate(4deg);
+  }
+  55% {
+    transform: scale(0.95) rotate(0deg);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes kick {
+  40% {
+    transform: scale(1.35);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/*
+  Sparks thrown out of the like button. They are cheap — one span each, rotated
+  around the centre by --a and flung outward — because a canvas for six dots
+  costs more than it is worth.
+*/
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.confetti i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 2px;
+  background: var(--c, var(--accent));
+  transform: rotate(var(--a, 0deg));
+  animation: spark 0.6s var(--ease) forwards;
+}
+
+@keyframes spark {
+  0% {
+    opacity: 1;
+    transform: rotate(var(--a, 0deg)) translateY(-2px) scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--a, 0deg)) translateY(-26px) scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------ count */
+
+/* A number that matters — followers, a like total on a profile — set in the
+   display face so it reads as a figure rather than as body copy. */
+.count {
+  font-family: var(--display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------- headings */
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* ------------------------------------------------------------- scrollbars */
+
+/* A visible scrollbar inside a rounded panel spoils the shape; these lists are
+   short enough to scroll by wheel or touch alone. */
+.no-bar {
+  scrollbar-width: none;
+}
+
+.no-bar::-webkit-scrollbar {
+  display: none;
+}

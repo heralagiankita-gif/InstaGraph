@@ -1,0 +1,49 @@
+{
+  "name": "InstaGraph",
+  "short_name": "InstaGraph",
+  "description": "A photo and video app built on a social graph.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "categories": ["social", "photo"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New post",
+      "short_name": "Post",
+      "url": "/create"
+    },
+    {
+      "name": "Reels",
+      "short_name": "Reels",
+      "url": "/reels"
+    },
+    {
+      "name": "Messages",
+      "short_name": "Inbox",
+      "url": "/messages"
+    }
+  ]
+}
