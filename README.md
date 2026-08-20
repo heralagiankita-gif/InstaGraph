@@ -172,6 +172,59 @@ what is left is bytes nothing can reach.
 
 ---
 
+## 1b. Deploying it
+
+The production build points every URL at its own origin — `/api`, `/hubs`, `/uploads` — rather than at
+a hostname baked into the bundle (`src/environments/environment.prod.ts`). That single decision is what
+makes both deployments below work without a rebuild when the backend moves.
+
+### One container, one origin — recommended
+
+`dotnet publish` folds the Angular bundle into the API's `wwwroot`, so the API serves the frontend and
+there is only ever one origin. No CORS, and SignalR gets a real WebSocket instead of falling back to
+long polling through a proxy.
+
+```bash
+docker build -t instagraph .
+docker run -p 8080:8080 \
+  -e ConnectionStrings__DefaultConnection="Server=…;Database=InstaGraphDb;User Id=…;Password=…;TrustServerCertificate=True" \
+  -e Jwt__SecretKey="a-64-character-random-string-of-your-own" \
+  instagraph
+```
+
+Then open **http://localhost:8080**. Double underscores are how .NET reads nested configuration from
+the environment, and environment variables beat `appsettings.json`, so no secret needs to be in a file.
+
+Deploys as-is to anything that takes a Dockerfile — Railway, Render, Fly.io, Azure Container Apps.
+Two things to set up there:
+
+- **A managed SQL Server** — Azure SQL, or SQL Server on any host — and its connection string.
+- **A mounted volume at `/app/wwwroot/uploads`.** Container filesystems are ephemeral: without one,
+  every redeploy drops the uploaded photos while their rows stay in the database.
+
+### Frontend on Vercel, API elsewhere
+
+Only if you want the CDN. `vercel.json` at the repo root already declares the build, the output
+directory and the SPA rewrite, so nothing needs setting in the dashboard — but **replace
+`YOUR-API-HOST` in it first**, in all three proxy rewrites. Then add the Vercel origin to the API's
+allowed origins, since this split does involve two of them:
+
+```bash
+Cors__AllowedOrigins__0=https://your-app.vercel.app
+```
+
+The trade-off: SignalR is proxied, so it will likely settle for server-sent events rather than a
+WebSocket. Messaging and notifications still work; they just reconnect more.
+
+### Why the API still needs a config file
+
+`appsettings.json` is gitignored, so a deployment builds from `appsettings.example.json` — same file
+with the JWT key and SMTP password blanked. It carries the feed and graph weights, which are not
+secrets but are also not optional. The Dockerfile copies it into place; pass the real secrets as
+environment variables.
+
+---
+
 ## 2. A five-minute demo path
 
 Because there is no seed data, the order below is what makes the app show what it can do.

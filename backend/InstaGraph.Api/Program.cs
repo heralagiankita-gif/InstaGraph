@@ -119,6 +119,11 @@ app.UseCors(ServiceCollectionExtensions.CorsPolicyName);
 // file is markup after all — which, for a directory whose contents are chosen by users, is the whole
 // ball game. The CSP is the belt to that pair of braces: even if something scriptable were served from
 // here, it would have nothing it was allowed to do.
+// The same wwwroot also holds the built Angular app on a deployed build, and the two need opposite
+// treatment: uploads are hostile input to be locked down, the SPA is our own code that has to run. So
+// the hardened headers are scoped to the uploads path rather than applied to everything served here.
+var uploadsPath = "/" + (builder.Configuration["Uploads:Folder"] ?? "uploads").Trim('/');
+
 app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = context =>
@@ -126,10 +131,25 @@ app.UseStaticFiles(new StaticFileOptions
         var headers = context.Context.Response.Headers;
 
         headers.XContentTypeOptions = "nosniff";
-        headers.ContentSecurityPolicy = "default-src 'none'; sandbox";
 
-        // Uploaded media never changes — the name is a fresh GUID every time — so it can be cached hard.
-        headers.CacheControl = "public, max-age=31536000, immutable";
+        if (context.Context.Request.Path.StartsWithSegments(uploadsPath))
+        {
+            headers.ContentSecurityPolicy = "default-src 'none'; sandbox";
+
+            // Uploaded media never changes — the name is a fresh GUID every time — so cache it hard.
+            headers.CacheControl = "public, max-age=31536000, immutable";
+        }
+        else if (context.File.Name.Equals("index.html", StringComparison.OrdinalIgnoreCase))
+        {
+            // The one file that must not be cached. It names the hashed bundles, so a stale copy points
+            // a browser at chunk filenames that no longer exist and the app fails to boot after a deploy.
+            headers.CacheControl = "no-cache, no-store, must-revalidate";
+        }
+        else
+        {
+            // Everything else Angular emits carries a content hash in its filename.
+            headers.CacheControl = "public, max-age=31536000, immutable";
+        }
     }
 });
 
@@ -145,5 +165,43 @@ app.MapControllers();
 // The socket. One connection per open tab; the client falls back to server-sent events and then to long
 // polling on its own if a proxy refuses to upgrade.
 app.MapHub<RealtimeHub>("/hubs/realtime");
+
+// ------------------------------------------------------------------- the SPA
+// On a deployed build the Angular bundle sits in wwwroot and this API is the only origin there is.
+// `/explore` is a route the client router owns, not a file on disk, so anything that reaches the end of
+// the pipeline unmatched is handed index.html and the router resolves it in the browser. Without this,
+// a refresh on any URL but `/` is a 404 — the classic single-page-app deployment bug.
+//
+// The prefixes below are excluded deliberately. A wrong API path has to keep answering 404, because
+// returning a page of HTML to something expecting JSON turns a clear "no such endpoint" into a parse
+// error three layers away from the cause.
+app.MapFallback(async context =>
+{
+    var path = context.Request.Path;
+
+    if (path.StartsWithSegments("/api")
+        || path.StartsWithSegments("/hubs")
+        || path.StartsWithSegments("/swagger")
+        || path.StartsWithSegments(uploadsPath))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+
+    var index = Path.Combine(app.Environment.WebRootPath ?? "wwwroot", "index.html");
+
+    // No SPA in wwwroot is the normal state on a dev machine, where Angular is served by `ng serve` on
+    // its own port. Say so plainly rather than throwing a file-not-found.
+    if (!File.Exists(index))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+
+    context.Response.ContentType = "text/html";
+    context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+
+    await context.Response.SendFileAsync(index);
+});
 
 app.Run();

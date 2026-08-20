@@ -1,0 +1,21 @@
+# Everything here is either rebuilt inside the image or must never reach it. Keeping node_modules and
+# bin/obj out is not just tidiness: copying a host-built node_modules into a Linux image ships native
+# binaries compiled for the wrong platform, and the build fails in a way that reads as a code error.
+node_modules/
+dist/
+.angular/
+bin/
+obj/
+
+.git/
+.vs/
+.vscode/
+.idea/
+
+# Local secrets and local uploads stay local.
+backend/InstaGraph.Api/appsettings.Development.json
+backend/InstaGraph.Api/appsettings.json
+backend/InstaGraph.Api/wwwroot/uploads/
+
+*.md
+InstaGraph.sql
